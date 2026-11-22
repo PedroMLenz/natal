@@ -71,7 +71,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,label.btn:focus-wi
 .pi{position:absolute;overflow:hidden}
 .ruler{position:absolute;left:5mm;top:292mm;width:50mm;border-top:.3mm solid #000;font:7pt Outfit,sans-serif;color:#000;padding-top:.5mm}
 #printArea{display:none}
-@media print{@page{size:A4;margin:0}body{background:#fff}.top,.grid{display:none!important}#printArea{display:block}.sheet{break-after:page}}
+@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}@page{size:A4;margin:0}body{background:#fff}.top,.grid{display:none!important}#printArea{display:block}.sheet{break-after:page}}
 @media(prefers-reduced-motion:no-preference){.th,.it{transition:box-shadow .15s}}
 </style>
 </head>
@@ -887,7 +887,7 @@ $('guias').onchange=e=>{S.guias=e.target.checked;save();renderSheets()};
 const FONTS=document.querySelector('link[href*="fonts.googleapis"]').outerHTML;
 function printDoc(){
  const sheets=pack();
- return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folhas para imprimir</title>${FONTS}<style>@page{size:A4;margin:0}body{margin:0;background:#ddd;font-family:Outfit,sans-serif}.tip{max-width:210mm;margin:12px auto;background:#fff;padding:12px 16px;border-radius:8px;font-size:15px}.sheet{width:210mm;height:297mm;position:relative;overflow:hidden;background:#fff;margin:0 auto 12px}.pi{position:absolute;overflow:hidden}.ruler{position:absolute;left:5mm;top:292mm;width:50mm;border-top:.3mm solid #000;font:7pt Outfit,sans-serif;padding-top:.5mm}@media print{body{background:#fff}.tip{display:none}.sheet{margin:0;break-after:page}}</style></head><body><div class="tip"><b>Para sair no tamanho certo:</b> papel A4 · Escala 100% (ou "Tamanho real") · Margens: Nenhuma · desmarque "Ajustar à página". ${sheets.length} folha(s).</div>${sheets.map(sheetHTML).join('')}<script>document.fonts.ready.then(function(){setTimeout(function(){window.print()},700)})<\/script></body></html>`;
+ return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folhas para imprimir</title>${FONTS}<style>*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}@page{size:A4;margin:0}body{margin:0;background:#ddd;font-family:Outfit,sans-serif}.tip{max-width:210mm;margin:12px auto;background:#fff;padding:12px 16px;border-radius:8px;font-size:15px}.sheet{width:210mm;height:297mm;position:relative;overflow:hidden;background:#fff;margin:0 auto 12px}.pi{position:absolute;overflow:hidden}.ruler{position:absolute;left:5mm;top:292mm;width:50mm;border-top:.3mm solid #000;font:7pt Outfit,sans-serif;padding-top:.5mm}@media print{body{background:#fff}.tip{display:none}.sheet{margin:0;break-after:page}}</style></head><body><div class="tip"><b>Para sair no tamanho certo:</b> papel A4 · Escala 100% (ou "Tamanho real") · Margens: Nenhuma · desmarque "Ajustar à página" · se as cores não aparecerem, marque "Gráficos de fundo". Depois de imprimir, meça a régua no pé da folha: tem que dar 5 cm. ${sheets.length} folha(s).</div>${sheets.map(sheetHTML).join('')}<script>document.fonts.ready.then(function(){setTimeout(function(){window.print()},700)})<\/script></body></html>`;
 }
 $('dl').onclick=async()=>{
  if(!S.items.length){$('pmsg').textContent='Adicione pelo menos uma arte antes.';return}
