@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ateliê de Natal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Outfit:wght@200;300;400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm, simple, for someone who is not a designer — big buttons, one step at a time.
+   IDEA: a little print shop counter: pick a design, fill it in, lay it on the A4 sheet.
+   PICTURE: the live design preview and the real A4 sheets are the picture.
+   COLOUR and TYPE: the catalogue's own palette — pine green, Christmas red, gold; Fraunces + Outfit.
+   LAYOUT: three columns on a computer (choose · personalise · sheets), stacked on small screens. */
+:root{color-scheme:light dark;
+ --bg:light-dark(#F6F1E7,#101A15);--card:light-dark(#FFFFFF,#18261F);--ink:light-dark(#1F2A24,#EFEAE0);--soft:light-dark(#5B665F,#AEB8B1);
+ --line:light-dark(#E4DCCB,#2C3D34);--green:#1F4D3A;--red:#A8322A;--gold:#C9A24A;--chip:light-dark(#EFE6D6,#22352C)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Outfit,system-ui,sans-serif;overflow-x:clip}
+h1,h2{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.05;margin:0;text-wrap:balance}
+.top{background:var(--green);color:#FBF6EE;padding:22px max(4vw,16px);display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline}
+.top h1{font-size:clamp(28px,4vw,40px)}.top p{margin:0;color:#D5E1D9}
+.grid{display:grid;gap:18px;padding:18px max(2vw,12px);grid-template-columns:300px minmax(0,1fr) 400px;align-items:start}
+@media(max-width:1250px){.grid{grid-template-columns:280px minmax(0,1fr)}#folhas{grid-column:1/-1}}
+@media(max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.card h2{font-size:24px;margin-bottom:12px}.card h2 b{color:var(--red);font-weight:600}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+button,.btn{font:inherit;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:8px 14px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,label.btn:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.tabs button[aria-pressed=true]{background:var(--green);color:#FBF6EE;border-color:var(--green)}
+.primary{background:var(--red);color:#fff;border-color:var(--red);font-weight:600}
+.ghost{background:transparent}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:70vh;overflow:auto;padding:2px}
+.th{display:flex;flex-direction:column;gap:6px;align-items:center;padding:8px;text-align:center;font-size:14px;line-height:1.2}
+.th[aria-pressed=true]{border-color:var(--red);box-shadow:0 0 0 2px var(--red)}
+.mini{background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.18);overflow:hidden}
+.stage{background:repeating-conic-gradient(var(--chip) 0 25%,transparent 0 50%) 0 0/22px 22px;border-radius:12px;padding:14px;display:flex;justify-content:center;min-height:160px}
+.stage .mini{touch-action:none}
+.slot img{user-select:none}.stage .slot{cursor:grab}
+.hint{color:var(--soft);font-size:14px;margin:8px 0 0}
+.form{display:grid;gap:14px;margin-top:16px}
+.f label{display:block;font-weight:500;margin-bottom:5px}
+.f input[type=text],.f select,.qty input{font:inherit;font-size:16px;width:100%;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px 12px}
+.sw{display:flex;gap:8px;flex-wrap:wrap}.sw button{width:44px;height:44px;padding:0;border-radius:50%;border:3px solid var(--line)}
+.sw button[aria-pressed=true]{border-color:var(--ink)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}.seg button[aria-pressed=true]{background:var(--green);color:#FBF6EE;border-color:var(--green)}
+.ph{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ph input[type=range]{flex:1 1 140px;accent-color:var(--red)}
+.ph .ok{color:var(--green);font-weight:600}.ph .no{color:var(--red)}
+.addrow{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.qty{width:110px}.qty label{display:block;font-weight:500;margin-bottom:5px}
+.warn{background:light-dark(#FFF4D6,#3A3014);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;margin-top:12px}
+.list{display:grid;gap:8px;margin-bottom:14px}
+.it{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}
+.it .mini{width:64px;display:flex;justify-content:center;background:transparent;box-shadow:none}
+.it b{display:block;font-weight:600}.it small{color:var(--soft)}
+.it .ctl{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.it .ctl button{min-height:36px;min-width:36px;padding:4px 8px}
+.opts{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.opts label{display:flex;gap:8px;align-items:center}
+.opts input{width:20px;height:20px;accent-color:var(--red)}
+.pages{display:grid;gap:14px}
+.pg{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);position:relative;overflow:hidden}
+.pgl{font-size:13px;color:var(--soft);margin-bottom:4px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.empty{color:var(--soft);border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center}
+.sheet{width:210mm;height:297mm;position:relative;overflow:hidden;background:#fff}
+.pi{position:absolute;overflow:hidden}
+.ruler{position:absolute;left:5mm;top:292mm;width:50mm;border-top:.3mm solid #000;font:7pt Outfit,sans-serif;color:#000;padding-top:.5mm}
+#printArea{display:none}
+@media print{@page{size:A4;margin:0}body{background:#fff}.top,.grid{display:none!important}#printArea{display:block}.sheet{break-after:page}}
+@media(prefers-reduced-motion:no-preference){.th,.it{transition:box-shadow .15s}}
+</style>
+</head>
+<body>
+<header class="top"><h1>Ateliê de Natal</h1><p>Escolha a arte, coloque o nome e a foto, e mande para a folha A4.</p></header>
+<main class="grid">
+ <section class="card" id="escolher"><h2><b>1.</b> Escolha a arte</h2><div class="tabs" id="tabs"></div><div class="thumbs" id="thumbs"></div></section>
+ <section class="card" id="personalizar"><h2><b>2.</b> Personalize · <span id="tnome"></span></h2>
+  <div class="stage" id="stage"></div>
+  <p class="hint" id="dica"></p>
+  <div class="form" id="form"></div>
+  <div class="addrow">
+   <div class="qty"><label for="qty">Quantidade</label><input id="qty" type="number" min="1" max="99" value="1" inputmode="numeric"></div>
+   <label class="opts" id="versoBox" hidden><span><input type="checkbox" id="verso" checked> Incluir o verso</span></label>
+   <button class="primary" id="add">Adicionar à folha</button>
+   <button class="ghost" id="cancel" hidden>Cancelar edição</button>
+  </div>
+  <div class="warn" id="warn" hidden></div>
+ </section>
+ <section class="card" id="folhas"><h2><b>3.</b> Folhas A4</h2>
+  <div class="list" id="list"></div>
+  <div class="opts">
+   <label><input type="checkbox" id="mirror"> Espelhar para sublimação (deixe marcado)</label>
+   <label><input type="checkbox" id="ruler"> Imprimir régua de teste de 5 cm na 1ª folha</label>
+  </div>
+  <div class="pages" id="pages"></div>
+  <div class="actions"><button class="primary" id="dl">Baixar folhas para imprimir</button><button id="pr">Imprimir agora</button></div>
+  <p class="hint" id="pmsg">Na janela de impressão escolha: papel A4 · Escala 100% (Tamanho real) · Margens: Nenhuma.</p>
+ </section>
+</main>
+<div id="printArea"></div>
+<script>
+{
+const FRASES={'Sobrevivi a 2026':'Sobrevivi a 2026\ne só ganhei\nesta caneca','Cadê meu café':'Ho ho ho…\ncadê meu\ncafé?','Fui bonzinho':'Fui bonzinho\no ano todo.\nQuase.','Melhor amigo secreto':'Melhor\namigo secreto\ndo grupo','Papai Noel, eu explico':'Papai Noel,\neu posso\nexplicar'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const art=v=>String(v.sexo||'').indexOf('Fêmea')===0?'da':'do';
+function imgBox(p,w,h){const b=Math.max(w/p.iw,h/p.ih)*(p.z||1),W=p.iw*b,H=p.ih*b;return `left:${(w-W)/2+(p.dx||0)*w}px;top:${(h-H)/2+(p.dy||0)*h}px;width:${W}px;height:${H}px`}
+function PH(v,k,w,h,extra){
+ const p=v[k],base=`position:relative;overflow:hidden;width:${w}px;height:${h}px;${extra}`;
+ if(p&&p.src)return `<div class="slot" data-slot="${k}" data-w="${w}" data-h="${h}" style="${base}"><img src="${p.src}" alt="" draggable="false" style="position:absolute;max-width:none;${imgBox(p,w,h)}"></div>`;
+ const ic=Math.round(Math.min(w,h)*.24);
+ return `<div class="slot" data-slot="${k}" style="${base};background:#D5E1D9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${Math.round(ic*.12)}px"><svg aria-hidden="true" width="${ic}" height="${Math.round(ic*.83)}" viewBox="0 0 120 100" fill="none" stroke="#4A554E" stroke-width="5" stroke-linejoin="round"><rect x="6" y="18" width="108" height="76" rx="8"/><path d="M38 18 L46 6 H74 L82 18"/><circle cx="60" cy="56" r="20"/></svg><span style="font-family:Outfit,sans-serif;font-size:${Math.max(16,Math.round(ic*.3))}px;letter-spacing:.12em;color:#4A554E">FOTO</span></div>`;
+}
+const T=[
+{id:"CanecaA",prod:"Canecas",nome:"A · Clássico",w:2362,h:1063,fields:[{"k": "nome", "t": "text", "l": "Nome", "d": "Ana"}, {"k": "borda", "t": "select", "l": "Acabamento das laterais", "o": ["Onda", "Degradê"], "d": "Onda"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: #FFFFFF; font-family: Fraunces, serif">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; background-color: #A8322A; background-image: repeating-linear-gradient(90deg, transparent 0 92px, rgba(251,246,238,0.55) 92px 98px, transparent 98px 190px), repeating-linear-gradient(0deg, transparent 0 92px, rgba(251,246,238,0.55) 92px 98px, transparent 98px 190px), repeating-linear-gradient(90deg, rgba(31,77,58,0.42) 0 64px, transparent 64px 190px), repeating-linear-gradient(0deg, rgba(31,77,58,0.42) 0 64px, transparent 64px 190px)"></div>
+
+  ${v.borda==="Onda"?`
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; left: 0"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#1F4D3A" stroke-width="8"/></svg>
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; right: 0; transform: scaleX(-1)"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#1F4D3A" stroke-width="8"/></svg>
+  `:`
+    <div aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to right, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+    <div aria-hidden="true" style="position: absolute; right: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to left, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+  `}
+
+  <div style="position: absolute; left: 0; top: 0; width: 1181px; height: 1063px; display: flex; align-items: center; justify-content: center">
+    <div style="width: 440px; height: 440px; border-radius: 220px; background: #FBF6EE; border: 12px solid #1F4D3A; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px">
+      <svg role="img" aria-label="Raminho de azevinho" width="250" height="200" viewBox="0 0 200 160">
+        <path d="M100 92 C80 60 42 48 10 58 C26 68 20 84 36 90 C30 101 41 111 56 108 C62 119 82 116 100 92 Z" fill="#1F4D3A"/>
+        <path d="M100 92 C120 60 158 48 190 58 C174 68 180 84 164 90 C170 101 159 111 144 108 C138 119 118 116 100 92 Z" fill="#2E6B50"/>
+        <path d="M100 92 L26 62 M100 92 L174 62" stroke="#7FA88F" stroke-width="3" fill="none"/>
+        <circle cx="89" cy="98" r="15" fill="#B23A2E"/>
+        <circle cx="113" cy="98" r="15" fill="#B23A2E"/>
+        <circle cx="101" cy="78" r="15" fill="#B23A2E"/>
+        <circle cx="84" cy="93" r="4" fill="#FBF6EE"/>
+        <circle cx="108" cy="93" r="4" fill="#FBF6EE"/>
+        <circle cx="96" cy="73" r="4" fill="#FBF6EE"/>
+      </svg>
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 46px; letter-spacing: 16px; color: #1F4D3A; padding-left: 16px">2026</span>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 1063px; display: flex; align-items: center; justify-content: center">
+    <div style="width: 800px; height: 740px; border-radius: 400px / 370px; background: #FBF6EE; border: 16px solid #1F4D3A; box-sizing: border-box; display: flex; align-items: center; justify-content: center">
+      <div style="width: 724px; height: 664px; border-radius: 362px / 332px; border: 4px solid #C9A24A; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center">
+        <span style="font-style: italic; font-weight: 400; font-size: 112px; line-height: 1; color: #1F4D3A">Feliz Natal,</span>
+        <span style="font-weight: 600; font-size: 240px; line-height: 1.02; color: #A8322A; letter-spacing: -4px">${esc(v.nome)}</span>
+      </div>
+    </div>
+  </div>
+</div>`},
+{id:"CanecaB",prod:"Canecas",nome:"B · Minimalista",w:2362,h:1063,fields:[{"k": "nome", "t": "text", "l": "Nome", "d": "Ana"}, {"k": "cor", "t": "color", "l": "Cor do detalhe", "o": ["#C9A24A", "#A8322A", "#1F4D3A"], "d": "#C9A24A"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: #FFFFFF; font-family: Outfit, sans-serif">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <defs>
+      <path id="estrela" d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z"/>
+    </defs>
+    <g fill="${v.cor}">
+      <use href="#estrela" transform="translate(300 300) scale(0.5)" opacity="0.35"/>
+      <use href="#estrela" transform="translate(210 700) scale(0.35)" opacity="0.2"/>
+      <use href="#estrela" transform="translate(900 260) scale(0.6)" opacity="0.5"/>
+      <use href="#estrela" transform="translate(960 800) scale(0.5)" opacity="0.4"/>
+      <use href="#estrela" transform="translate(1181 520) scale(0.75)" opacity="0.55"/>
+      <use href="#estrela" transform="translate(1290 220) scale(0.5)" opacity="0.4"/>
+      <use href="#estrela" transform="translate(1260 860) scale(0.6)" opacity="0.45"/>
+      <use href="#estrela" transform="translate(2200 320) scale(0.4)" opacity="0.28"/>
+      <use href="#estrela" transform="translate(2250 760) scale(0.32)" opacity="0.18"/>
+    </g>
+    <g fill="#1F4D3A">
+      <circle cx="1060" cy="420" r="6" opacity="0.5"/>
+      <circle cx="1100" cy="700" r="5" opacity="0.4"/>
+      <circle cx="380" cy="820" r="4" opacity="0.3"/>
+      <circle cx="2150" cy="560" r="4" opacity="0.3"/>
+    </g>
+  </svg>
+
+  <div style="position: absolute; left: 0; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px">
+    <svg aria-hidden="true" width="90" height="90" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="${v.cor}"/></svg>
+    <span style="font-weight: 300; font-size: 76px; letter-spacing: 20px; color: #1F4D3A; padding-left: 20px">FELIZ NATAL</span>
+    <div style="width: 260px; height: 3px; background: ${v.cor}"></div>
+  </div>
+
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 1063px; display: flex; align-items: center; justify-content: center; gap: 60px">
+    <svg role="img" aria-label="Pinheiro de Natal em traço fino" width="320" height="560" viewBox="0 0 420 720" fill="none" stroke="#1F4D3A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M210 30 L218 52 L240 54 L222 68 L228 90 L210 77 L192 90 L198 68 L180 54 L202 52 Z" fill="${v.cor}" stroke="${v.cor}" stroke-width="3"/>
+      <path d="M210 110 L120 250 L172 250 L72 420 L142 420 L36 610 L384 610 L278 420 L348 420 L248 250 L300 250 Z"/>
+      <path d="M190 610 V690 H230 V610"/>
+      <circle cx="176" cy="330" r="10" fill="${v.cor}" stroke="none"/>
+      <circle cx="262" cy="470" r="10" fill="${v.cor}" stroke="none"/>
+      <circle cx="150" cy="540" r="10" fill="${v.cor}" stroke="none"/>
+    </svg>
+
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 28px">
+      <span style="font-weight: 200; font-size: 180px; line-height: 0.9; letter-spacing: 34px; color: #1F2A24">${esc(v.nome.toUpperCase())}</span>
+      <div style="width: 440px; height: 3px; background: ${v.cor}"></div>
+      <span style="font-weight: 300; font-size: 48px; letter-spacing: 18px; color: #1F4D3A">NATAL 2026</span>
+    </div>
+  </div>
+</div>`},
+{id:"CanecaC",prod:"Canecas",nome:"C · Foto em família",w:2362,h:1063,fields:[{"k": "sobrenome", "t": "text", "l": "Sobrenome da família", "d": "Silva"}, {"k": "foto", "t": "photo", "l": "Foto da família"}, {"k": "borda", "t": "select", "l": "Acabamento das laterais", "o": ["Onda", "Degradê"], "d": "Degradê"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: #1F4D3A; font-family: Fraunces, serif">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <g fill="#FBF6EE">
+      <circle cx="340" cy="140" r="8" opacity="0.4"/><circle cx="260" cy="560" r="10" opacity="0.4"/><circle cx="380" cy="930" r="7" opacity="0.3"/>
+      <circle cx="950" cy="180" r="9" opacity="0.5"/><circle cx="1040" cy="460" r="6" opacity="0.35"/><circle cx="1110" cy="780" r="11" opacity="0.45"/>
+      <circle cx="1230" cy="300" r="7" opacity="0.35"/><circle cx="1290" cy="950" r="8" opacity="0.4"/><circle cx="1180" cy="620" r="5" opacity="0.3"/>
+      <circle cx="1000" cy="960" r="6" opacity="0.3"/><circle cx="880" cy="70" r="5" opacity="0.3"/>
+      <circle cx="2180" cy="200" r="8" opacity="0.4"/><circle cx="2230" cy="640" r="10" opacity="0.4"/><circle cx="2120" cy="960" r="7" opacity="0.3"/>
+    </g>
+  </svg>
+
+  ${v.borda==="Onda"?`
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; left: 0"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#C9A24A" stroke-width="8"/></svg>
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; right: 0; transform: scaleX(-1)"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#C9A24A" stroke-width="8"/></svg>
+  `:`
+    <div aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to right, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+    <div aria-hidden="true" style="position: absolute; right: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to left, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+  `}
+
+  <div style="position: absolute; left: 0; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center">
+    <span style="font-style: italic; font-weight: 400; font-size: 120px; line-height: 1; color: #E3C77A">Família</span>
+    <span style="font-weight: 600; font-size: 230px; line-height: 1; letter-spacing: -4px; color: #FBF6EE">${esc(v.sobrenome)}</span>
+    <div style="display: flex; align-items: center; gap: 22px; margin-top: 22px">
+      <div style="width: 70px; height: 3px; background: #E3C77A"></div>
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 42px; letter-spacing: 14px; color: #E3C77A; padding-left: 14px">FELIZ NATAL</span>
+      <div style="width: 70px; height: 3px; background: #E3C77A"></div>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 1063px; display: flex; align-items: center; justify-content: center">
+    <div style="transform: rotate(-4deg); background: #FBF6EE; padding: 30px 30px 0; box-sizing: border-box; width: 640px; height: 820px; display: flex; flex-direction: column; box-shadow: 0 18px 40px rgba(0,0,0,0.28)">
+      ${PH(v,"foto",580,610,"")}
+      <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center">
+        <span style="font-family: Caveat, cursive; font-size: 82px; color: #A8322A">Natal 2026</span>
+      </div>
+    </div>
+  </div>
+</div>`},
+{id:"CanecaD",prod:"Canecas",nome:"D · Divertido",w:2362,h:1063,fields:[{"k": "nome", "t": "text", "l": "Nome (opcional)", "d": "Ana"}, {"k": "frase", "t": "select", "l": "Frase", "o": ["Sobrevivi a 2026", "Cadê meu café", "Fui bonzinho", "Melhor amigo secreto", "Papai Noel, eu explico"], "d": "Cadê meu café"}, {"k": "fundo", "t": "color", "l": "Cor do fundo", "o": ["#F2C94C", "#F4B6B0", "#BFE0D0", "#FFFFFF"], "d": "#F2C94C"}, {"k": "borda", "t": "select", "l": "Acabamento das laterais", "o": ["Onda", "Degradê"], "d": "Degradê"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: ${v.fundo}; font-family: Caveat, cursive; color: #1F2A24">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <defs><path id="brilho" d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z"/></defs>
+    <g fill="#1F2A24" opacity="0.8">
+      <use href="#brilho" transform="translate(980 200) scale(0.9)"/>
+      <use href="#brilho" transform="translate(1110 820) scale(0.7)"/>
+      <use href="#brilho" transform="translate(1240 360) scale(0.5)"/>
+      <use href="#brilho" transform="translate(320 220) scale(0.5)"/>
+      <use href="#brilho" transform="translate(2080 900) scale(0.5)"/>
+    </g>
+    <g fill="#FFFFFF">
+      <circle cx="1060" cy="560" r="10"/><circle cx="1200" cy="660" r="7"/><circle cx="930" cy="900" r="8"/>
+      <circle cx="1290" cy="130" r="8"/><circle cx="400" cy="880" r="7"/><circle cx="2120" cy="160" r="8"/>
+    </g>
+  </svg>
+
+  ${v.borda==="Onda"?`
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; left: 0"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#1F2A24" stroke-width="8"/></svg>
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; right: 0; transform: scaleX(-1)"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#1F2A24" stroke-width="8"/></svg>
+  `:`
+    <div aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to right, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+    <div aria-hidden="true" style="position: absolute; right: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to left, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+  `}
+
+  <div style="position: absolute; left: 0; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px">
+    <svg role="img" aria-label="Gorro de Papai Noel" width="405" height="330" viewBox="0 0 320 260" fill="none" stroke="#1F2A24" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M36 196 C40 112 108 42 196 42 C252 42 282 92 278 152 C270 120 240 114 230 142 C225 162 238 186 248 196 Z" fill="#A8322A"/>
+      <rect x="22" y="188" width="240" height="58" rx="29" fill="#FFFFFF"/>
+      <circle cx="278" cy="164" r="30" fill="#FFFFFF"/>
+    </svg>
+    <span style="font-weight: 700; font-size: 150px; line-height: 1">${esc(v.nome)}</span>
+  </div>
+
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px">
+    <span style="font-weight: 700; font-size: 165px; line-height: 0.92; text-align: center; white-space: pre-line; transform: rotate(-3deg)">${FRASES[v.frase]}</span>
+    <svg aria-hidden="true" width="560" height="50" viewBox="0 0 560 50" style="transform: rotate(-3deg)"><path d="M10 30 C80 8 150 44 220 24 C290 4 360 44 430 24 C480 10 520 22 550 18" fill="none" stroke="#A8322A" stroke-width="10" stroke-linecap="round"/></svg>
+  </div>
+</div>`},
+{id:"CanecaE",prod:"Canecas",nome:"E · Pet",w:2362,h:1063,fields:[{"k": "nome", "t": "text", "l": "Nome do pet", "d": "Thor"}, {"k": "quem", "t": "select", "l": "Quem dá", "o": ["Mamãe", "Papai"], "d": "Mamãe"}, {"k": "sexo", "t": "select", "l": "O pet é", "o": ["Macho (do)", "Fêmea (da)"], "d": "Macho (do)"}, {"k": "comFoto", "t": "select", "l": "Foto do pet", "o": ["Com foto", "Sem foto (patinha)"], "d": "Com foto"}, {"k": "foto", "t": "photo", "l": "Foto do pet"}, {"k": "fundo", "t": "color", "l": "Cor do fundo", "o": ["#EADBC8", "#BFE0D0", "#F4B6B0", "#FFFFFF"], "d": "#EADBC8"}, {"k": "borda", "t": "select", "l": "Acabamento das laterais", "o": ["Onda", "Degradê"], "d": "Degradê"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: ${v.fundo}; font-family: Fraunces, serif; color: #7E2A23">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <g fill="#7E2A23"><g transform="translate(684 795) rotate(57) scale(1.15)" opacity="0.18"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(824 775) rotate(57) scale(1.15)" opacity="0.37"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(899 655) rotate(57) scale(1.15)" opacity="0.53"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(1039 635) rotate(57) scale(1.15)" opacity="0.64"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(1114 515) rotate(57) scale(1.15)" opacity="0.68"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(1254 495) rotate(57) scale(1.15)" opacity="0.64"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(1329 375) rotate(57) scale(1.15)" opacity="0.53"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(1469 355) rotate(57) scale(1.15)" opacity="0.37"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g><g transform="translate(1544 235) rotate(57) scale(1.15)" opacity="0.18"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g></g>
+  </svg>
+
+  ${v.borda==="Onda"?`
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; left: 0"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#7E2A23" stroke-width="8"/></svg>
+    <svg aria-hidden="true" width="200" height="1063" viewBox="0 0 200 1063" style="position: absolute; top: 0; right: 0; transform: scaleX(-1)"><path d="M0 0 L120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063 L0 1063 Z" fill="#FFFFFF"/><path d="M120 0 Q175 44.3 120 88.6 Q65 132.9 120 177.2 Q175 221.5 120 265.8 Q65 310 120 354.3 Q175 398.6 120 442.9 Q65 487.2 120 531.5 Q175 575.8 120 620.1 Q65 664.4 120 708.7 Q175 752.9 120 797.2 Q65 841.5 120 885.8 Q175 930.1 120 974.4 Q65 1018.7 120 1063" fill="none" stroke="#7E2A23" stroke-width="8"/></svg>
+  `:`
+    <div aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to right, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+    <div aria-hidden="true" style="position: absolute; right: 0; top: 0; bottom: 0; width: 160px; background: linear-gradient(to left, #FFFFFF 0%, #FFFFFF 8%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0) 100%)"></div>
+  `}
+
+  <div style="position: absolute; left: 0; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center">
+    <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 50px; letter-spacing: 12px; text-transform: uppercase; color: #1F4D3A; padding-left: 12px">${v.quem} ${art(v)}</span>
+    <span style="font-weight: 600; font-size: 200px; line-height: 1; letter-spacing: -3px">${esc(v.nome)}</span>
+    <svg aria-hidden="true" width="110" height="110" viewBox="-40 -40 80 80" style="margin-top: 14px"><g fill="#1F4D3A"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g></svg>
+  </div>
+
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center">
+    <div style="position: relative; width: 500px; height: 500px">
+      <div style="width: 500px; height: 500px; border-radius: 250px; background: #FBF6EE; border: 18px solid #FBF6EE; box-sizing: border-box; box-shadow: 0 0 0 6px #7E2A23; overflow: hidden; display: flex; align-items: center; justify-content: center">
+        ${v.comFoto==="Com foto"?`
+          ${PH(v,"foto",464,464,"border-radius: 232px")}
+        `:`
+          <svg role="img" aria-label="Pegada de pet" width="300" height="300" viewBox="-40 -40 80 80"><g fill="#7E2A23"><path d="M0 6 C-8 6 -12 12 -17 15 C-24 19 -27 25 -25 31 C-23 37 -16 39 -9 37 C-5 36 -3 35 0 35 C3 35 5 36 9 37 C16 39 23 37 25 31 C27 25 24 19 17 15 C12 12 8 6 0 6 Z"/><ellipse cx="-25" cy="-6" rx="7.5" ry="10" transform="rotate(-28 -25 -6)"/><ellipse cx="-9.5" cy="-17" rx="8" ry="11" transform="rotate(-8 -9.5 -17)"/><ellipse cx="9.5" cy="-17" rx="8" ry="11" transform="rotate(8 9.5 -17)"/><ellipse cx="25" cy="-6" rx="7.5" ry="10" transform="rotate(28 25 -6)"/></g></svg>
+        `}
+      </div>
+      <svg role="img" aria-label="Gorro de Papai Noel" width="320" height="260" viewBox="0 0 320 260" fill="none" stroke="#1F2A24" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" style="position: absolute; top: -120px; right: -90px; transform: rotate(18deg)">
+        <path d="M36 196 C40 112 108 42 196 42 C252 42 282 92 278 152 C270 120 240 114 230 142 C225 162 238 186 248 196 Z" fill="#A8322A"/>
+        <rect x="22" y="188" width="240" height="58" rx="29" fill="#FFFFFF"/>
+        <circle cx="278" cy="164" r="30" fill="#FFFFFF"/>
+      </svg>
+    </div>
+    <span style="font-style: italic; font-weight: 400; font-size: 92px; line-height: 1; margin-top: 26px; color: #1F4D3A">Natal ${art(v)}</span>
+    <span style="font-weight: 600; font-size: 170px; line-height: 1; letter-spacing: -3px">${esc(v.nome)}</span>
+  </div>
+</div>`},
+{id:"CanecaF",prod:"Canecas",nome:"F · Primeiro Natal",w:2362,h:1063,fields:[{"k": "versao", "t": "select", "l": "Versão", "o": ["Casal", "Bebê", "Casa nova"], "d": "Casal"}, {"k": "nomes", "t": "text", "l": "Nome(s)", "d": "Lucas & Bia"}, {"k": "bola", "t": "color", "l": "Cor da bolinha", "o": ["#A8322A", "#1F4D3A", "#C9A24A"], "d": "#A8322A"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: #FFFFFF; font-family: Fraunces, serif">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <defs>
+      <linearGradient id="fio" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#1F2A24" stop-opacity="0"/>
+        <stop offset="0.18" stop-color="#1F2A24" stop-opacity="0.8"/>
+        <stop offset="0.82" stop-color="#1F2A24" stop-opacity="0.8"/>
+        <stop offset="1" stop-color="#1F2A24" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="M60 152 Q1181 440 2302 152" fill="none" stroke="url(#fio)" stroke-width="4"/>
+    <g opacity="0.19"><line x1="260" y1="191" x2="260" y2="205" stroke="#1F2A24" stroke-width="4"/><ellipse cx="260" cy="225" rx="13" ry="20" fill="#A8322A"/></g><g opacity="0.48"><line x1="380" y1="213" x2="380" y2="227" stroke="#1F2A24" stroke-width="4"/><ellipse cx="380" cy="247" rx="13" ry="20" fill="#C9A24A"/></g><g opacity="1"><line x1="740" y1="265" x2="740" y2="279" stroke="#1F2A24" stroke-width="4"/><ellipse cx="740" cy="299" rx="13" ry="20" fill="#C9A24A"/></g><g opacity="1"><line x1="860" y1="277" x2="860" y2="291" stroke="#1F2A24" stroke-width="4"/><ellipse cx="860" cy="311" rx="13" ry="20" fill="#1F4D3A"/></g><g opacity="1"><line x1="980" y1="285" x2="980" y2="299" stroke="#1F2A24" stroke-width="4"/><ellipse cx="980" cy="319" rx="13" ry="20" fill="#A8322A"/></g><g opacity="1"><line x1="1100" y1="289" x2="1100" y2="303" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1100" cy="323" rx="13" ry="20" fill="#C9A24A"/></g><g opacity="1"><line x1="1220" y1="290" x2="1220" y2="304" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1220" cy="324" rx="13" ry="20" fill="#1F4D3A"/></g><g opacity="1"><line x1="1340" y1="287" x2="1340" y2="301" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1340" cy="321" rx="13" ry="20" fill="#A8322A"/></g><g opacity="1"><line x1="1460" y1="280" x2="1460" y2="294" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1460" cy="314" rx="13" ry="20" fill="#C9A24A"/></g><g opacity="1"><line x1="1580" y1="269" x2="1580" y2="283" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1580" cy="303" rx="13" ry="20" fill="#1F4D3A"/></g><g opacity="1"><line x1="1700" y1="256" x2="1700" y2="270" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1700" cy="290" rx="13" ry="20" fill="#A8322A"/></g><g opacity="0.86"><line x1="1820" y1="239" x2="1820" y2="253" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1820" cy="273" rx="13" ry="20" fill="#C9A24A"/></g><g opacity="0.58"><line x1="1940" y1="220" x2="1940" y2="234" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1940" cy="254" rx="13" ry="20" fill="#1F4D3A"/></g><g opacity="0.29"><line x1="2060" y1="199" x2="2060" y2="213" stroke="#1F2A24" stroke-width="4"/><ellipse cx="2060" cy="233" rx="13" ry="20" fill="#A8322A"/></g>
+  </svg>
+
+  <div style="position: absolute; left: 410px; top: 250px; width: 360px; height: 520px">
+    <svg role="img" aria-label="Bolinha de Natal pendurada no varal" width="360" height="520" viewBox="0 0 360 520">
+      <path d="M180 6 V150" stroke="#1F2A24" stroke-width="4"/>
+      <circle cx="180" cy="6" r="7" fill="#1F2A24"/>
+      <path d="M180 150 C164 150 164 172 180 172 C196 172 196 150 180 150" fill="none" stroke="#C9A24A" stroke-width="6"/>
+      <rect x="148" y="170" width="64" height="40" rx="8" fill="#C9A24A"/>
+      <circle cx="180" cy="358" r="150" fill="${v.bola}"/>
+      <path d="M180 430 C120 390 110 350 135 330 C155 314 175 324 180 342 C185 324 205 314 225 330 C250 350 240 390 180 430 Z" fill="#FBF6EE"/>
+      <ellipse cx="120" cy="290" rx="22" ry="12" fill="#FFFFFF" opacity="0.45" transform="rotate(-35 120 290)"/>
+    </svg>
+  </div>
+
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 1063px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding-top: 120px; box-sizing: border-box">
+    <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 56px; letter-spacing: 16px; text-transform: uppercase; color: #A8322A; padding-left: 16px">${v.versao==="Bebê"?"Meu primeiro":"Nosso primeiro"}</span>
+    <span style="font-weight: 600; font-size: 290px; line-height: 0.95; letter-spacing: -6px; color: #1F4D3A">Natal</span>
+    ${v.versao==="Casa nova"?`
+      <span style="font-style: italic; font-weight: 400; font-size: 84px; line-height: 1; color: #1F4D3A">na casa nova</span>
+    `:""}
+    <span style="font-style: italic; font-weight: 400; font-size: 84px; line-height: 1.1; margin-top: 18px; color: #1F2A24">${esc(v.nomes)} · 2026</span>
+  </div>
+</div>`},
+{id:"CanecaG",prod:"Canecas",nome:"G · Retrospectiva (5 fotos)",w:2362,h:1063,fields:[{"k": "sobrenome", "t": "text", "l": "Sobrenome da família", "d": "Silva"}, {"k": "foto1", "t": "photo", "l": "Foto 1"}, {"k": "foto2", "t": "photo", "l": "Foto 2"}, {"k": "foto3", "t": "photo", "l": "Foto 3"}, {"k": "foto4", "t": "photo", "l": "Foto 4"}, {"k": "foto5", "t": "photo", "l": "Foto 5"}, {"k": "fundo", "t": "color", "l": "Cor do fundo", "o": ["#A8322A", "#1F4D3A", "#7E2A23"], "d": "#A8322A"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: ${v.fundo}; font-family: Fraunces, serif">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <g fill="#FBF6EE" opacity="0.35">
+      <circle cx="300" cy="80" r="7"/><circle cx="820" cy="140" r="5"/><circle cx="1300" cy="60" r="6"/><circle cx="1900" cy="150" r="5"/>
+      <circle cx="420" cy="990" r="6"/><circle cx="1050" cy="1010" r="5"/><circle cx="2050" cy="1000" r="7"/>
+    </g>
+  </svg>
+
+  <div style="position: absolute; left: 0; top: 0; width: 1181px; height: 230px; display: flex; align-items: center; justify-content: center">
+    <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 120px; line-height: 1; color: #FBF6EE">Melhores momentos</span>
+  </div>
+  <div style="position: absolute; left: 1181px; top: 0; width: 1181px; height: 230px; display: flex; align-items: center; justify-content: center">
+    <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 64px; letter-spacing: 18px; color: #E3C77A; padding-left: 18px">NATAL 2026</span>
+  </div>
+
+  <div style="position: absolute; left: 130px; top: 230px; width: 2102px; height: 560px; background: #1F2A24; clip-path: polygon(0 0, 100% 0, calc(100% - 90px) 50%, 100% 100%, 0 100%, 90px 50%)">
+    <svg aria-hidden="true" width="2362" height="26" viewBox="0 0 2362 26" style="position: absolute; left: -130px; top: 30px"><g fill="#FBF6EE" opacity="0.9"><rect x="10" y="0" width="34" height="26" rx="6"/><rect x="74" y="0" width="34" height="26" rx="6"/><rect x="138" y="0" width="34" height="26" rx="6"/><rect x="202" y="0" width="34" height="26" rx="6"/><rect x="266" y="0" width="34" height="26" rx="6"/><rect x="330" y="0" width="34" height="26" rx="6"/><rect x="394" y="0" width="34" height="26" rx="6"/><rect x="458" y="0" width="34" height="26" rx="6"/><rect x="522" y="0" width="34" height="26" rx="6"/><rect x="586" y="0" width="34" height="26" rx="6"/><rect x="650" y="0" width="34" height="26" rx="6"/><rect x="714" y="0" width="34" height="26" rx="6"/><rect x="778" y="0" width="34" height="26" rx="6"/><rect x="842" y="0" width="34" height="26" rx="6"/><rect x="906" y="0" width="34" height="26" rx="6"/><rect x="970" y="0" width="34" height="26" rx="6"/><rect x="1034" y="0" width="34" height="26" rx="6"/><rect x="1098" y="0" width="34" height="26" rx="6"/><rect x="1162" y="0" width="34" height="26" rx="6"/><rect x="1226" y="0" width="34" height="26" rx="6"/><rect x="1290" y="0" width="34" height="26" rx="6"/><rect x="1354" y="0" width="34" height="26" rx="6"/><rect x="1418" y="0" width="34" height="26" rx="6"/><rect x="1482" y="0" width="34" height="26" rx="6"/><rect x="1546" y="0" width="34" height="26" rx="6"/><rect x="1610" y="0" width="34" height="26" rx="6"/><rect x="1674" y="0" width="34" height="26" rx="6"/><rect x="1738" y="0" width="34" height="26" rx="6"/><rect x="1802" y="0" width="34" height="26" rx="6"/><rect x="1866" y="0" width="34" height="26" rx="6"/><rect x="1930" y="0" width="34" height="26" rx="6"/><rect x="1994" y="0" width="34" height="26" rx="6"/><rect x="2058" y="0" width="34" height="26" rx="6"/><rect x="2122" y="0" width="34" height="26" rx="6"/><rect x="2186" y="0" width="34" height="26" rx="6"/><rect x="2250" y="0" width="34" height="26" rx="6"/><rect x="2314" y="0" width="34" height="26" rx="6"/></g></svg>
+    <svg aria-hidden="true" width="2362" height="26" viewBox="0 0 2362 26" style="position: absolute; left: -130px; bottom: 30px"><g fill="#FBF6EE" opacity="0.9"><rect x="10" y="0" width="34" height="26" rx="6"/><rect x="74" y="0" width="34" height="26" rx="6"/><rect x="138" y="0" width="34" height="26" rx="6"/><rect x="202" y="0" width="34" height="26" rx="6"/><rect x="266" y="0" width="34" height="26" rx="6"/><rect x="330" y="0" width="34" height="26" rx="6"/><rect x="394" y="0" width="34" height="26" rx="6"/><rect x="458" y="0" width="34" height="26" rx="6"/><rect x="522" y="0" width="34" height="26" rx="6"/><rect x="586" y="0" width="34" height="26" rx="6"/><rect x="650" y="0" width="34" height="26" rx="6"/><rect x="714" y="0" width="34" height="26" rx="6"/><rect x="778" y="0" width="34" height="26" rx="6"/><rect x="842" y="0" width="34" height="26" rx="6"/><rect x="906" y="0" width="34" height="26" rx="6"/><rect x="970" y="0" width="34" height="26" rx="6"/><rect x="1034" y="0" width="34" height="26" rx="6"/><rect x="1098" y="0" width="34" height="26" rx="6"/><rect x="1162" y="0" width="34" height="26" rx="6"/><rect x="1226" y="0" width="34" height="26" rx="6"/><rect x="1290" y="0" width="34" height="26" rx="6"/><rect x="1354" y="0" width="34" height="26" rx="6"/><rect x="1418" y="0" width="34" height="26" rx="6"/><rect x="1482" y="0" width="34" height="26" rx="6"/><rect x="1546" y="0" width="34" height="26" rx="6"/><rect x="1610" y="0" width="34" height="26" rx="6"/><rect x="1674" y="0" width="34" height="26" rx="6"/><rect x="1738" y="0" width="34" height="26" rx="6"/><rect x="1802" y="0" width="34" height="26" rx="6"/><rect x="1866" y="0" width="34" height="26" rx="6"/><rect x="1930" y="0" width="34" height="26" rx="6"/><rect x="1994" y="0" width="34" height="26" rx="6"/><rect x="2058" y="0" width="34" height="26" rx="6"/><rect x="2122" y="0" width="34" height="26" rx="6"/><rect x="2186" y="0" width="34" height="26" rx="6"/><rect x="2250" y="0" width="34" height="26" rx="6"/><rect x="2314" y="0" width="34" height="26" rx="6"/></g></svg>
+    <div style="position: absolute; left: 49px; top: 80px; display: flex; gap: 26px">
+      ${PH(v,"foto1",380,400,"flex-shrink: 0")}
+      ${PH(v,"foto2",380,400,"flex-shrink: 0")}
+      ${PH(v,"foto3",380,400,"flex-shrink: 0")}
+      ${PH(v,"foto4",380,400,"flex-shrink: 0")}
+      ${PH(v,"foto5",380,400,"flex-shrink: 0")}
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 0; top: 790px; width: 1181px; height: 273px; display: flex; align-items: center; justify-content: center">
+    <span style="font-style: italic; font-size: 92px; color: #E3C77A">de 2026</span>
+  </div>
+  <div style="position: absolute; left: 1181px; top: 790px; width: 1181px; height: 273px; display: flex; align-items: center; justify-content: center; gap: 24px">
+    <span style="font-style: italic; font-size: 92px; color: #FBF6EE">Família</span>
+    <span style="font-weight: 600; font-size: 130px; letter-spacing: -2px; color: #FBF6EE">${esc(v.sobrenome)}</span>
+  </div>
+
+  <svg aria-hidden="true" width="150" height="1063" viewBox="0 0 150 1063" style="position: absolute; top: 0; left: 0"><g fill="#FFFFFF"><rect x="0" y="0" width="70" height="1063"/><circle cx="70" cy="0" r="38"/><circle cx="88" cy="76" r="46"/><circle cx="70" cy="152" r="38"/><circle cx="88" cy="228" r="46"/><circle cx="70" cy="304" r="38"/><circle cx="88" cy="380" r="46"/><circle cx="70" cy="456" r="38"/><circle cx="88" cy="532" r="46"/><circle cx="70" cy="608" r="38"/><circle cx="88" cy="684" r="46"/><circle cx="70" cy="760" r="38"/><circle cx="88" cy="836" r="46"/><circle cx="70" cy="912" r="38"/><circle cx="88" cy="988" r="46"/><circle cx="70" cy="1064" r="38"/></g></svg>
+  <svg aria-hidden="true" width="150" height="1063" viewBox="0 0 150 1063" style="position: absolute; top: 0; right: 0; transform: scaleX(-1)"><g fill="#FFFFFF"><rect x="0" y="0" width="70" height="1063"/><circle cx="70" cy="0" r="38"/><circle cx="88" cy="76" r="46"/><circle cx="70" cy="152" r="38"/><circle cx="88" cy="228" r="46"/><circle cx="70" cy="304" r="38"/><circle cx="88" cy="380" r="46"/><circle cx="70" cy="456" r="38"/><circle cx="88" cy="532" r="46"/><circle cx="70" cy="608" r="38"/><circle cx="88" cy="684" r="46"/><circle cx="70" cy="760" r="38"/><circle cx="88" cy="836" r="46"/><circle cx="70" cy="912" r="38"/><circle cx="88" cy="988" r="46"/><circle cx="70" cy="1064" r="38"/></g></svg>
+</div>`},
+{id:"CanecaH",prod:"Canecas",nome:"H · Varal de fotos (4 fotos)",w:2362,h:1063,fields:[{"k": "sobrenome", "t": "text", "l": "Sobrenome da família", "d": "Silva"}, {"k": "foto1", "t": "photo", "l": "Foto 1"}, {"k": "foto2", "t": "photo", "l": "Foto 2"}, {"k": "foto3", "t": "photo", "l": "Foto 3"}, {"k": "foto4", "t": "photo", "l": "Foto principal (a maior)"}],html:(v)=>`<div style="width: 2362px; height: 1063px; position: relative; overflow: hidden; background: #FFFFFF; font-family: Fraunces, serif">
+
+  <svg aria-hidden="true" width="2362" height="1063" viewBox="0 0 2362 1063" style="position: absolute; inset: 0">
+    <defs>
+      <linearGradient id="fioH" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#1F2A24" stop-opacity="0"/>
+        <stop offset="0.12" stop-color="#1F2A24" stop-opacity="0.85"/>
+        <stop offset="0.88" stop-color="#1F2A24" stop-opacity="0.85"/>
+        <stop offset="1" stop-color="#1F2A24" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="M60 110 Q1181 410 2302 110" fill="none" stroke="url(#fioH)" stroke-width="5"/>
+    <g opacity="0.16"><line x1="200" y1="145" x2="200" y2="157" stroke="#1F2A24" stroke-width="4"/><ellipse cx="200" cy="175" rx="12" ry="18" fill="#A8322A"/></g><g opacity="0.74"><line x1="420" y1="191" x2="420" y2="203" stroke="#1F2A24" stroke-width="4"/><ellipse cx="420" cy="221" rx="12" ry="18" fill="#C9A24A"/></g><g opacity="1"><line x1="530" y1="209" x2="530" y2="221" stroke="#1F2A24" stroke-width="4"/><ellipse cx="530" cy="239" rx="12" ry="18" fill="#1F4D3A"/></g><g opacity="1"><line x1="640" y1="225" x2="640" y2="237" stroke="#1F2A24" stroke-width="4"/><ellipse cx="640" cy="255" rx="12" ry="18" fill="#A8322A"/></g><g opacity="1"><line x1="970" y1="255" x2="970" y2="267" stroke="#1F2A24" stroke-width="4"/><ellipse cx="970" cy="285" rx="12" ry="18" fill="#C9A24A"/></g><g opacity="1"><line x1="1080" y1="259" x2="1080" y2="271" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1080" cy="289" rx="12" ry="18" fill="#1F4D3A"/></g><g opacity="1"><line x1="1410" y1="254" x2="1410" y2="266" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1410" cy="284" rx="12" ry="18" fill="#A8322A"/></g><g opacity="1"><line x1="1520" y1="246" x2="1520" y2="258" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1520" cy="276" rx="12" ry="18" fill="#C9A24A"/></g><g opacity="1"><line x1="1630" y1="236" x2="1630" y2="248" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1630" cy="266" rx="12" ry="18" fill="#1F4D3A"/></g><g opacity="0.69"><line x1="1960" y1="188" x2="1960" y2="200" stroke="#1F2A24" stroke-width="4"/><ellipse cx="1960" cy="218" rx="12" ry="18" fill="#A8322A"/></g><g opacity="0.4"><line x1="2070" y1="166" x2="2070" y2="178" stroke="#1F2A24" stroke-width="4"/><ellipse cx="2070" cy="196" rx="12" ry="18" fill="#C9A24A"/></g><g opacity="0.15"><line x1="2180" y1="141" x2="2180" y2="153" stroke="#1F2A24" stroke-width="4"/><ellipse cx="2180" cy="171" rx="12" ry="18" fill="#1F4D3A"/></g>
+  </svg>
+
+  <div style="position: absolute; left: 205px; top: 192px; width: 250px; transform: rotate(-6deg); transform-origin: 50% 0">
+    <div style="background: #FFFFFF; padding: 18px 18px 0; box-sizing: border-box; width: 250px; height: 370px; box-shadow: 0 10px 26px rgba(31,42,36,0.22); display: flex; flex-direction: column">
+      ${PH(v,"foto1",214,282,"")}
+    </div>
+    <div aria-hidden="true" style="position: absolute; left: 113px; top: -34px; width: 24px; height: 66px; border-radius: 5px; background: #C9A24A; border: 3px solid #8A6A22; box-sizing: border-box"></div>
+  </div>
+  <div style="position: absolute; left: 675px; top: 261px; width: 250px; transform: rotate(5deg); transform-origin: 50% 0">
+    <div style="background: #FFFFFF; padding: 18px 18px 0; box-sizing: border-box; width: 250px; height: 370px; box-shadow: 0 10px 26px rgba(31,42,36,0.22); display: flex; flex-direction: column">
+      ${PH(v,"foto2",214,282,"")}
+    </div>
+    <div aria-hidden="true" style="position: absolute; left: 113px; top: -34px; width: 24px; height: 66px; border-radius: 5px; background: #C9A24A; border: 3px solid #8A6A22; box-sizing: border-box"></div>
+  </div>
+  <div style="position: absolute; left: 1145px; top: 277px; width: 250px; transform: rotate(-4deg); transform-origin: 50% 0">
+    <div style="background: #FFFFFF; padding: 18px 18px 0; box-sizing: border-box; width: 250px; height: 370px; box-shadow: 0 10px 26px rgba(31,42,36,0.22); display: flex; flex-direction: column">
+      ${PH(v,"foto3",214,282,"")}
+    </div>
+    <div aria-hidden="true" style="position: absolute; left: 113px; top: -34px; width: 24px; height: 66px; border-radius: 5px; background: #C9A24A; border: 3px solid #8A6A22; box-sizing: border-box"></div>
+  </div>
+  <div style="position: absolute; left: 1606px; top: 236px; width: 330px; transform: rotate(3deg); transform-origin: 50% 0">
+    <div style="background: #FFFFFF; padding: 18px 18px 0; box-sizing: border-box; width: 330px; height: 470px; box-shadow: 0 10px 26px rgba(31,42,36,0.22); display: flex; flex-direction: column">
+      ${PH(v,"foto4",294,382,"")}
+    </div>
+    <div aria-hidden="true" style="position: absolute; left: 153px; top: -34px; width: 24px; height: 66px; border-radius: 5px; background: #C9A24A; border: 3px solid #8A6A22; box-sizing: border-box"></div>
+  </div>
+
+  <div style="position: absolute; left: 0; top: 760px; width: 1181px; height: 303px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0">
+    <span style="font-style: italic; font-size: 84px; line-height: 1; color: #A8322A">Família</span>
+    <span style="font-weight: 600; font-size: 140px; line-height: 1; letter-spacing: -2px; color: #1F4D3A">${esc(v.sobrenome)}</span>
+  </div>
+  <div style="position: absolute; left: 1181px; top: 820px; width: 1181px; height: 243px; display: flex; align-items: center; justify-content: center">
+    <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 130px; line-height: 1; color: #A8322A">Feliz Natal 2026</span>
+  </div>
+</div>`},
+{id:"ChaveiroNome",prod:"Chaveiros",nome:"Inicial e nome",w:650,h:650,fields:[{"k": "nome", "t": "text", "l": "Nome", "d": "Ana"}],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #1F4D3A; padding: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <div aria-hidden="true" style="position: absolute; left: 62px; top: 62px; width: 526px; height: 526px; border-radius: 263px; border: 3px dashed #FBF6EE; opacity: 0.4; box-sizing: border-box"></div>
+  <svg aria-hidden="true" width="40" height="40" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#E3C77A"/></svg>
+  <span style="font-weight: 600; font-size: 200px; line-height: 0.9; color: #FBF6EE">${esc((v.nome||'').trim().charAt(0).toUpperCase())}</span>
+  <span style="font-style: italic; font-size: 58px; line-height: 1; color: #E3C77A">${esc(v.nome)}</span>
+</div>`},
+{id:"ChaveiroHoHoHo",prod:"Chaveiros",nome:"Ho Ho Ho",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #A8322A; padding: 150px 120px 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <div aria-hidden="true" style="position: absolute; left: 62px; top: 62px; width: 526px; height: 526px; border-radius: 263px; border: 3px dashed #FBF6EE; opacity: 0.4; box-sizing: border-box"></div>
+  <span style="font-weight: 600; font-size: 100px; line-height: 0.88; letter-spacing: -3px; color: #FBF6EE">HO<br>HO<br>HO</span>
+  <svg aria-hidden="true" width="36" height="36" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#F2C94C"/></svg>
+</div>`},
+{id:"ChaveiroFoto",prod:"Chaveiros",nome:"Família é tudo!",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #FBF6EE; padding: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <div aria-hidden="true" style="position: absolute; left: 62px; top: 62px; width: 526px; height: 526px; border-radius: 263px; border: 3px dashed #A8322A; opacity: 0.4; box-sizing: border-box"></div>
+  <svg aria-hidden="true" width="34" height="34" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#C9A24A"/></svg>
+  <span style="font-weight: 600; font-size: 104px; line-height: 0.95; letter-spacing: -2px; color: #A8322A">Família</span>
+  <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 96px; line-height: 0.9; color: #1F4D3A">é tudo!</span>
+  <svg aria-hidden="true" width="44" height="40" viewBox="0 0 24 22"><path d="M12 21 C5 15 1 11 1 6.5 C1 3.4 3.4 1 6.4 1 C8.6 1 10.6 2.3 12 4.2 C13.4 2.3 15.4 1 17.6 1 C20.6 1 23 3.4 23 6.5 C23 11 19 15 12 21 Z" fill="#A8322A"/></svg>
+</div>`},
+{id:"ChaveiroBolinha",prod:"Chaveiros",nome:"Bolinha Natal 2026",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #F1E3CC; padding: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <div aria-hidden="true" style="position: absolute; left: 62px; top: 62px; width: 526px; height: 526px; border-radius: 263px; border: 3px dashed #1F4D3A; opacity: 0.4; box-sizing: border-box"></div>
+  <svg aria-hidden="true" width="150" height="190" viewBox="0 0 60 76"><rect x="22" y="2" width="16" height="12" rx="3" fill="#C9A24A"/><circle cx="30" cy="44" r="28" fill="#A8322A"/><path d="M30 58 C20 51 18 45 22 41 C25 38 29 40 30 43 C31 40 35 38 38 41 C42 45 40 51 30 58 Z" fill="#FBF6EE"/></svg>
+  <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 28px; letter-spacing: 8px; color: #1F4D3A; padding-left: 8px">NATAL</span>
+  <span style="font-weight: 600; font-size: 66px; line-height: 0.9; color: #1F4D3A">2026</span>
+</div>`},
+{id:"ChaveiroAmigoSecreto",prod:"Chaveiros",nome:"Fui eu que te tirei!",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #F2C94C; padding: 150px 120px 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <div aria-hidden="true" style="position: absolute; left: 62px; top: 62px; width: 526px; height: 526px; border-radius: 263px; border: 3px dashed #1F2A24; opacity: 0.4; box-sizing: border-box"></div>
+  <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 24px; letter-spacing: 4px; color: #1F2A24; padding-left: 4px">AMIGO SECRETO</span>
+  <span style="font-weight: 600; font-size: 64px; line-height: 0.95; color: #1F2A24">Fui eu<br>que te</span>
+  <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 78px; line-height: 0.9; color: #A8322A">tirei!</span>
+  <svg aria-hidden="true" width="32" height="32" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#A8322A"/></svg>
+</div>`},
+{id:"ImaPave",prod:"\u00cdm\u00e3s",nome:"Pavê ou pacomê",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #F2C94C; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #1F2A24; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="51" height="51" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#A8322A"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 5px; text-transform: uppercase; color: #1F2A24">Pergunta séria:</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 80px; line-height: 0.98; letter-spacing: -2px; color: #1F2A24">Pavê</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #A8322A">ou</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 80px; line-height: 0.98; letter-spacing: -2px; color: #1F2A24">pacomê?</span>
+  </div>
+</div>`},
+{id:"ImaUvaPassa",prod:"\u00cdm\u00e3s",nome:"O melhor presente é estar junto",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #1F4D3A; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #FBF6EE; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="72" height="57" viewBox="0 0 200 160"><path d="M100 92 C80 60 42 48 10 58 C26 68 20 84 36 90 C30 101 41 111 56 108 C62 119 82 116 100 92 Z" fill="#1F4D3A"/><path d="M100 92 C120 60 158 48 190 58 C174 68 180 84 164 90 C170 101 159 111 144 108 C138 119 118 116 100 92 Z" fill="#2E6B50"/><circle cx="89" cy="98" r="15" fill="#B23A2E"/><circle cx="113" cy="98" r="15" fill="#B23A2E"/><circle cx="101" cy="78" r="15" fill="#B23A2E"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #FBF6EE">O melhor presente</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #E3C77A">é estar junto.</span>
+  </div>
+</div>`},
+{id:"ImaDieta",prod:"\u00cdm\u00e3s",nome:"Dieta só em janeiro",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #A8322A; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #FBF6EE; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="68" height="56" viewBox="0 0 320 260" stroke="#1F2A24" stroke-width="10" stroke-linejoin="round"><path d="M36 196 C40 112 108 42 196 42 C252 42 282 92 278 152 C270 120 240 114 230 142 C225 162 238 186 248 196 Z" fill="#1F4D3A"/><rect x="22" y="188" width="240" height="58" rx="29" fill="#FFFFFF"/><circle cx="278" cy="164" r="30" fill="#FFFFFF"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 80px; line-height: 0.98; letter-spacing: -2px; color: #FBF6EE">Dieta?</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #F2C94C">Só em janeiro.</span>
+  </div>
+</div>`},
+{id:"ImaBoazinha",prod:"\u00cdm\u00e3s",nome:"Fui boazinha. Quase.",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #F4B6B0; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #7E2A23; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="51" height="51" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#7E2A23"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #7E2A23">Fui boazinha o ano todo.</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #1F4D3A">Quase.</span>
+  </div>
+</div>`},
+{id:"ImaCeia",prod:"\u00cdm\u00e3s",nome:"Sobrevivi à ceia",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #1E2B3A; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #FBF6EE; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="48" height="60" viewBox="0 0 60 76"><rect x="22" y="2" width="16" height="12" rx="3" fill="#C9A24A"/><circle cx="30" cy="44" r="28" fill="#A8322A"/><path d="M14 40 C24 46 36 46 46 40" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.6"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #E3C77A">Sobrevivi</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #FBF6EE">a mais uma ceia em família</span>
+  </div>
+</div>`},
+{id:"ImaPresenca",prod:"\u00cdm\u00e3s",nome:"Meu presente é minha presença",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #FBF6EE; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #A8322A; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="48" height="60" viewBox="0 0 60 76"><rect x="22" y="2" width="16" height="12" rx="3" fill="#C9A24A"/><circle cx="30" cy="44" r="28" fill="#1F4D3A"/><path d="M14 40 C24 46 36 46 46 40" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.6"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 5px; text-transform: uppercase; color: #A8322A">Desculpa,</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #A8322A">meu presente é a minha</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 80px; line-height: 0.98; letter-spacing: -2px; color: #A8322A">presença.</span>
+  </div>
+</div>`},
+{id:"ImaFarofa",prod:"\u00cdm\u00e3s",nome:"Família: o amor nunca termina",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #BFE0D0; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #1F4D3A; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="72" height="57" viewBox="0 0 200 160"><path d="M100 92 C80 60 42 48 10 58 C26 68 20 84 36 90 C30 101 41 111 56 108 C62 119 82 116 100 92 Z" fill="#1F4D3A"/><path d="M100 92 C120 60 158 48 190 58 C174 68 180 84 164 90 C170 101 159 111 144 108 C138 119 118 116 100 92 Z" fill="#2E6B50"/><circle cx="89" cy="98" r="15" fill="#B23A2E"/><circle cx="113" cy="98" r="15" fill="#B23A2E"/><circle cx="101" cy="78" r="15" fill="#B23A2E"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 5px; text-transform: uppercase; color: #1F4D3A">Família</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #1F4D3A">onde a vida começa e o amor</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #A8322A">nunca termina.</span>
+  </div>
+</div>`},
+{id:"ImaEspirito",prod:"\u00cdm\u00e3s",nome:"O espírito natalino mora aqui",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #1F4D3A; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #FBF6EE; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="51" height="51" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#E3C77A"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 5px; text-transform: uppercase; color: #FBF6EE">Aqui mora</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #FBF6EE">o espírito</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 80px; line-height: 0.98; letter-spacing: -2px; color: #FBF6EE">natalino</span>
+  </div>
+</div>`},
+{id:"ImaAmigoSecreto",prod:"\u00cdm\u00e3s",nome:"Espírito natalino depende do 13º",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #7E2A23; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #FBF6EE; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="56" height="56" viewBox="0 0 70 70"><rect x="8" y="26" width="54" height="40" rx="4" fill="#F2C94C"/><rect x="4" y="18" width="62" height="12" rx="3" fill="#F2C94C"/><rect x="31" y="18" width="8" height="48" fill="#7E2A23"/><path d="M35 18 C24 4 12 10 20 18 Z M35 18 C46 4 58 10 50 18 Z" fill="#7E2A23" stroke="#F2C94C" stroke-width="3"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #FBF6EE">Meu espírito natalino</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #F2C94C">depende do 13º.</span>
+  </div>
+</div>`},
+{id:"ImaTioPave",prod:"\u00cdm\u00e3s",nome:"Time chocotone",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #E3C77A; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #1F2A24; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="51" height="51" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#A8322A"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 5px; text-transform: uppercase; color: #1F2A24">Desculpa, panetone.</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 80px; line-height: 0.98; letter-spacing: -2px; color: #1F2A24">Time</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #A8322A">chocotone.</span>
+  </div>
+</div>`},
+{id:"ImaBagunca",prod:"\u00cdm\u00e3s",nome:"Não é bagunça, é decoração",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #A8322A; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #FBF6EE; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="48" height="60" viewBox="0 0 60 76"><rect x="22" y="2" width="16" height="12" rx="3" fill="#C9A24A"/><circle cx="30" cy="44" r="28" fill="#1F4D3A"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #FBF6EE">Não é bagunça,</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #F2C94C">é decoração de Natal.</span>
+  </div>
+</div>`},
+{id:"ImaSobremesa",prod:"\u00cdm\u00e3s",nome:"Papai Noel, manda no Pix",w:650,h:650,fields:[],html:(v)=>`<div style="width: 650px; height: 650px; box-sizing: border-box; background: #CFE3F2; padding: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 62px; border: 3px dashed #1E2B3A; opacity: 0.35; border-radius: 14px"></div>
+  <svg aria-hidden="true" width="68" height="56" viewBox="0 0 320 260" stroke="#1F2A24" stroke-width="10" stroke-linejoin="round"><path d="M36 196 C40 112 108 42 196 42 C252 42 282 92 278 152 C270 120 240 114 230 142 C225 162 238 186 248 196 Z" fill="#A8322A"/><rect x="22" y="188" width="240" height="58" rx="29" fill="#FFFFFF"/><circle cx="278" cy="164" r="30" fill="#FFFFFF"/></svg>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 74px; line-height: 0.95; color: #A8322A">Papai Noel,</span>
+      <span style="font-family: Fraunces, serif; font-weight: 600; font-size: 50px; line-height: 1.05; color: #1E2B3A">pode mandar meu presente no Pix.</span>
+  </div>
+</div>`},
+{id:"AzulejoA",prod:"Azulejos",nome:"1 · Moldura com nome",w:1772,h:1772,fields:[{"k": "sobrenome", "t": "text", "l": "Sobrenome da família", "d": "Silva"}, {"k": "foto", "t": "photo", "l": "Foto"}],html:(v)=>`<div style="width: 1772px; height: 1772px; position: relative; overflow: hidden; background: #FBF6EE; font-family: Fraunces, serif">
+  <div style="position: absolute; left: 70px; top: 70px; width: 1632px; height: 1250px; border: 10px solid #1F4D3A; box-sizing: border-box; overflow: hidden">
+    ${PH(v,"foto",1612,1230,"")}
+  </div>
+  <div style="position: absolute; left: 0; top: 1320px; width: 1772px; height: 452px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center">
+    <span style="font-style: italic; font-size: 110px; line-height: 1; color: #A8322A">Família</span>
+    <span style="font-weight: 600; font-size: 170px; line-height: 1; letter-spacing: -3px; color: #1F4D3A">${esc(v.sobrenome)}</span>
+    <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 46px; letter-spacing: 16px; color: #1F4D3A; padding-left: 16px; margin-top: 10px">NATAL 2026</span>
+  </div>
+  <div style="position: absolute; left: 60px; top: 1440px"><svg aria-hidden="true" width="300" height="240" viewBox="0 0 200 160"><path d="M100 92 C80 60 42 48 10 58 C26 68 20 84 36 90 C30 101 41 111 56 108 C62 119 82 116 100 92 Z" fill="#1F4D3A"/><path d="M100 92 C120 60 158 48 190 58 C174 68 180 84 164 90 C170 101 159 111 144 108 C138 119 118 116 100 92 Z" fill="#2E6B50"/><path d="M100 92 L26 62 M100 92 L174 62" stroke="#7FA88F" stroke-width="3" fill="none"/><circle cx="89" cy="98" r="15" fill="#B23A2E"/><circle cx="113" cy="98" r="15" fill="#B23A2E"/><circle cx="101" cy="78" r="15" fill="#B23A2E"/></svg></div>
+  <div style="position: absolute; right: 60px; top: 1440px; transform: scaleX(-1)"><svg aria-hidden="true" width="300" height="240" viewBox="0 0 200 160"><path d="M100 92 C80 60 42 48 10 58 C26 68 20 84 36 90 C30 101 41 111 56 108 C62 119 82 116 100 92 Z" fill="#1F4D3A"/><path d="M100 92 C120 60 158 48 190 58 C174 68 180 84 164 90 C170 101 159 111 144 108 C138 119 118 116 100 92 Z" fill="#2E6B50"/><path d="M100 92 L26 62 M100 92 L174 62" stroke="#7FA88F" stroke-width="3" fill="none"/><circle cx="89" cy="98" r="15" fill="#B23A2E"/><circle cx="113" cy="98" r="15" fill="#B23A2E"/><circle cx="101" cy="78" r="15" fill="#B23A2E"/></svg></div>
+</div>`},
+{id:"AzulejoB",prod:"Azulejos",nome:"2 · Polaroid no xadrez",w:1772,h:1772,fields:[{"k": "sobrenome", "t": "text", "l": "Sobrenome da família", "d": "Silva"}, {"k": "foto", "t": "photo", "l": "Foto"}],html:(v)=>`<div style="width: 1772px; height: 1772px; position: relative; overflow: hidden; background-color: #A8322A; background-image: repeating-linear-gradient(90deg, transparent 0 92px, rgba(251,246,238,0.55) 92px 98px, transparent 98px 190px), repeating-linear-gradient(0deg, transparent 0 92px, rgba(251,246,238,0.55) 92px 98px, transparent 98px 190px), repeating-linear-gradient(90deg, rgba(31,77,58,0.42) 0 64px, transparent 64px 190px), repeating-linear-gradient(0deg, rgba(31,77,58,0.42) 0 64px, transparent 64px 190px); font-family: Fraunces, serif">
+  <div style="position: absolute; left: 136px; top: 110px; width: 1500px; height: 1560px; transform: rotate(-2.5deg); background: #FFFFFF; padding: 60px 60px 0; box-sizing: border-box; box-shadow: 0 30px 70px rgba(0,0,0,0.35); display: flex; flex-direction: column">
+    ${PH(v,"foto",1380,1180,"")}
+    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 36px">
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 150px; line-height: 1; color: #A8322A">Natal 2026</span>
+      <span style="font-family: Caveat, cursive; font-weight: 700; font-size: 110px; line-height: 1; color: #1F4D3A">· Família ${esc(v.sobrenome)}</span>
+    </div>
+  </div>
+  <div style="position: absolute; left: 760px; top: 60px; width: 250px; height: 90px; background: rgba(251,246,238,0.85); transform: rotate(3deg)"></div>
+</div>`},
+{id:"AzulejoC",prod:"Azulejos",nome:"3 · Foto inteira",w:1772,h:1772,fields:[{"k": "sobrenome", "t": "text", "l": "Sobrenome da família", "d": "Silva"}, {"k": "foto", "t": "photo", "l": "Foto"}, {"k": "moldura", "t": "color", "l": "Cor dos detalhes", "o": ["#E3C77A", "#FBF6EE", "#A8322A"], "d": "#E3C77A"}],html:(v)=>`<div style="width: 1772px; height: 1772px; position: relative; overflow: hidden; background: #1F2A24; font-family: Fraunces, serif">
+  <div style="position: absolute; inset: 0">${PH(v,"foto",1772,1772,"")}</div>
+  <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 760px; background: linear-gradient(to top, rgba(20,30,24,0.92) 0%, rgba(20,30,24,0.6) 45%, rgba(20,30,24,0) 100%)"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 56px; border: 6px solid ${v.moldura}; border-radius: 6px"></div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 150px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+    <svg aria-hidden="true" width="90" height="90" viewBox="-24 -24 48 48"><path d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="${v.moldura}"/></svg>
+    <span style="font-style: italic; font-size: 190px; line-height: 1; color: #FBF6EE">Nosso Natal</span>
+    <span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 52px; letter-spacing: 14px; color: ${v.moldura}; padding-left: 14px">FAMÍLIA ${esc(v.sobrenome.toUpperCase())} · 2026</span>
+  </div>
+</div>`},
+{id:"EnfeiteBolinha",prod:"Enfeites",nome:"Bolinha · frente",w:777,h:896,fields:[{"k": "nome", "t": "text", "l": "Nome", "d": "Ana"}],pair:"EnfeiteBolinhaVerso",html:(v)=>`<div style="width: 777px; height: 896px; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <svg aria-hidden="true" width="777" height="896" viewBox="327.226 189.465 186.543 215.121" style="position: absolute; inset: 0"><g transform="translate(335.730 197.969) scale(2.834646)"><rect x="-5" y="-5" width="70" height="80" fill="#A8322A"/><rect x="-5" y="-5" width="70" height="15.5" fill="#C9A24A"/><rect x="24" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="26.5" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="29" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="31.5" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="34" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="36.5" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="-5" y="33" width="70" height="14" fill="#FBF6EE"/><rect x="-5" y="32" width="70" height="0.8" fill="#E3C77A"/><rect x="-5" y="47.2" width="70" height="0.8" fill="#E3C77A"/><path transform="translate(19 24) scale(0.0818)" d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#E3C77A"/><path transform="translate(29.9 22.5) scale(0.1182)" d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#E3C77A"/><path transform="translate(41 24) scale(0.0818)" d="M0 -22 L5 -5 L22 0 L5 5 L0 22 L-5 5 L-22 0 L-5 -5 Z" fill="#E3C77A"/><circle cx="10" cy="28" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="50" cy="29" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="8" cy="52" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="52" cy="53" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="22" cy="64" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="38" cy="65" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="14" cy="18" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="46" cy="17" r="0.6" fill="#FBF6EE" opacity="0.6"/></g></svg>
+  <div style="position: absolute; left: 0; right: 0; top: 444px; display: flex; justify-content: center; text-align: center"><span style="font-style: italic; font-size: 118px; line-height: 1; color: #1F4D3A">${esc(v.nome)}</span></div>
+  <div style="position: absolute; left: 0; right: 0; top: 644px; display: flex; justify-content: center; text-align: center"><span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 46px; letter-spacing: 12px; padding-left: 12px; color: #FBF6EE">NATAL 2026</span></div>
+</div>`},
+{id:"EnfeiteBolinhaVerso",prod:"Enfeites",nome:"Bolinha · verso",w:777,h:896,fields:[],html:(v)=>`<div style="width: 777px; height: 896px; position: relative; overflow: hidden; font-family: Fraunces, serif">
+ <div style="position: absolute; inset: 0; transform: scaleX(-1)">
+  <svg aria-hidden="true" width="777" height="896" viewBox="327.226 189.465 186.543 215.121" style="position: absolute; inset: 0"><g transform="translate(335.730 197.969) scale(2.834646)"><rect x="-5" y="-5" width="70" height="80" fill="#A8322A"/><circle cx="15" cy="26" r="0.7" fill="#FBF6EE" opacity="0.45"/><circle cx="30" cy="22" r="0.5" fill="#FBF6EE" opacity="0.45"/><circle cx="45" cy="27" r="0.7" fill="#FBF6EE" opacity="0.45"/><circle cx="9" cy="40" r="0.5" fill="#FBF6EE" opacity="0.45"/><circle cx="22" cy="38" r="0.6" fill="#FBF6EE" opacity="0.45"/><circle cx="38" cy="41" r="0.5" fill="#FBF6EE" opacity="0.45"/><circle cx="51" cy="39" r="0.6" fill="#FBF6EE" opacity="0.45"/><circle cx="16" cy="52" r="0.6" fill="#FBF6EE" opacity="0.45"/><circle cx="31" cy="50" r="0.7" fill="#FBF6EE" opacity="0.45"/><circle cx="44" cy="54" r="0.5" fill="#FBF6EE" opacity="0.45"/><circle cx="24" cy="62" r="0.5" fill="#FBF6EE" opacity="0.45"/><circle cx="37" cy="61" r="0.6" fill="#FBF6EE" opacity="0.45"/><rect x="-5" y="-5" width="70" height="15.5" fill="#C9A24A"/><rect x="24" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="26.5" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="29" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="31.5" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="34" y="-5" width="0.8" height="15.5" fill="#A88332"/><rect x="36.5" y="-5" width="0.8" height="15.5" fill="#A88332"/><circle cx="10" cy="28" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="50" cy="29" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="8" cy="52" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="52" cy="53" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="22" cy="64" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="38" cy="65" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="14" cy="18" r="0.6" fill="#FBF6EE" opacity="0.6"/><circle cx="46" cy="17" r="0.6" fill="#FBF6EE" opacity="0.6"/></g></svg>
+ </div>
+</div>`},
+{id:"EnfeitePinheiro",prod:"Enfeites",nome:"Pinheiro · frente",w:930,h:956,fields:[{"k": "nome", "t": "text", "l": "Nome", "d": "Ana"}],pair:"EnfeitePinheiroVerso",html:(v)=>`<div style="width: 930px; height: 956px; position: relative; overflow: hidden; font-family: Fraunces, serif">
+  <svg aria-hidden="true" width="930" height="956" viewBox="185.688 306.211 223.180 229.360" style="position: absolute; inset: 0"><g transform="translate(194.191 314.715) scale(2.834646)"><rect x="-5" y="-5" width="83" height="85" fill="#1F4D3A"/><rect x="-5" y="-5" width="83" height="21.5" fill="#E3C77A"/><path d="M22 29 Q36 37 52 31" fill="none" stroke="#E3C77A" stroke-width="1.1" stroke-linecap="round"/><path d="M8 59 Q36 70 66 58" fill="none" stroke="#E3C77A" stroke-width="1.1" stroke-linecap="round"/><circle cx="26" cy="33" r="1.9" fill="#A8322A"/><circle cx="45" cy="35" r="1.9" fill="#FBF6EE"/><circle cx="16" cy="47" r="1.9" fill="#E3C77A"/><circle cx="57" cy="49" r="1.9" fill="#A8322A"/><circle cx="11" cy="62" r="1.9" fill="#FBF6EE"/><circle cx="30" cy="66" r="1.9" fill="#A8322A"/><circle cx="47" cy="65" r="1.9" fill="#E3C77A"/><circle cx="62" cy="63" r="1.9" fill="#FBF6EE"/><circle cx="36" cy="27" r="1.9" fill="#E3C77A"/></g></svg>
+  <div style="position: absolute; left: 0; right: 0; top: 496px; display: flex; justify-content: center; text-align: center"><span style="font-family: Caveat, cursive; font-weight: 700; font-size: 140px; line-height: 1; color: #FBF6EE">${esc(v.nome)}</span></div>
+  <div style="position: absolute; left: 0; right: 0; top: 650px; display: flex; justify-content: center; text-align: center"><span style="font-family: Outfit, sans-serif; font-weight: 500; font-size: 40px; letter-spacing: 10px; padding-left: 10px; color: #E3C77A">2026</span></div>
+</div>`},
+{id:"EnfeitePinheiroVerso",prod:"Enfeites",nome:"Pinheiro · verso",w:930,h:956,fields:[],html:(v)=>`<div style="width: 930px; height: 956px; position: relative; overflow: hidden; font-family: Fraunces, serif">
+ <div style="position: absolute; inset: 0; transform: scaleX(-1)">
+  <svg aria-hidden="true" width="930" height="956" viewBox="185.688 306.211 223.180 229.360" style="position: absolute; inset: 0"><g transform="translate(194.191 314.715) scale(2.834646)"><rect x="-5" y="-5" width="83" height="85" fill="#1F4D3A"/><rect x="-5" y="-5" width="83" height="21.5" fill="#E3C77A"/><path d="M22 29 Q36 37 52 31" fill="none" stroke="#E3C77A" stroke-width="1.1" stroke-linecap="round"/><path d="M8 59 Q36 70 66 58" fill="none" stroke="#E3C77A" stroke-width="1.1" stroke-linecap="round"/><circle cx="26" cy="33" r="1.9" fill="#A8322A"/><circle cx="45" cy="35" r="1.9" fill="#FBF6EE"/><circle cx="16" cy="47" r="1.9" fill="#E3C77A"/><circle cx="57" cy="49" r="1.9" fill="#A8322A"/><circle cx="11" cy="62" r="1.9" fill="#FBF6EE"/><circle cx="30" cy="66" r="1.9" fill="#A8322A"/><circle cx="47" cy="65" r="1.9" fill="#E3C77A"/><circle cx="62" cy="63" r="1.9" fill="#FBF6EE"/><circle cx="36" cy="27" r="1.9" fill="#E3C77A"/></g></svg>
+ </div>
+</div>`}
+];
+const byId={};T.forEach(t=>byId[t.id]=t);
+const PRODS=['Canecas','Chaveiros','Ímãs','Azulejos','Enfeites'];
+const MM=25.4/300,SC=96/300,MARG=5,GAP=3;
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+function defaults(t){const v={};t.fields.forEach(f=>{v[f.k]=f.t==='photo'?null:f.d});return v}
+function design(t,v,scale){return `<div class="mini" style="width:${(t.w*scale).toFixed(1)}px;height:${(t.h*scale).toFixed(1)}px;position:relative"><div style="width:${t.w}px;height:${t.h}px;transform:scale(${scale});transform-origin:0 0;position:absolute;left:0;top:0">${t.html(v)}</div></div>`}
+let S={items:[],mirror:true,ruler:true},prod='Canecas',cur=null,confirmNoPhoto=false;
+
+/* ---------- saving in this browser (IndexedDB) ---------- */
+const store={db:null,
+ open(){return new Promise(r=>{try{const q=indexedDB.open('atelie-natal',1);q.onupgradeneeded=()=>q.result.createObjectStore('s');q.onsuccess=()=>{this.db=q.result;r()};q.onerror=()=>r()}catch(e){r()}})},
+ get(){return new Promise(r=>{try{const q=this.db.transaction('s').objectStore('s').get('estado');q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}})},
+ set(v){try{this.db.transaction('s','readwrite').objectStore('s').put(v,'estado')}catch(e){}}};
+let saveT;const save=()=>{clearTimeout(saveT);saveT=setTimeout(()=>store.set({items:S.items,mirror:S.mirror,ruler:S.ruler}),400)};
+
+/* ---------- 1. choose ---------- */
+function renderTabs(){$('tabs').innerHTML=PRODS.map(p=>`<button aria-pressed="${p===prod}" data-p="${p}">${p}</button>`).join('')}
+function renderThumbs(){
+ const list=T.filter(t=>t.prod===prod&&!(t.prod==='Enfeites'&&/verso/.test(t.nome)));
+ $('thumbs').innerHTML=list.map(t=>{const s=Math.min(110/t.w,110/t.h);return `<button class="th" data-t="${t.id}" aria-pressed="${cur&&cur.tid===t.id&&!cur.edit}">${design(t,defaults(t),s)}<span>${esc(t.nome)}</span></button>`}).join('');
+}
+function pick(tid,item){
+ const t=byId[tid];confirmNoPhoto=false;$('warn').hidden=true;
+ cur=item?{tid,v:clone(item.v),edit:item.uid}:{tid,v:defaults(t),edit:null};
+ $('qty').value=item?item.qty:1;
+ $('tnome').textContent=t.prod.replace(/s$/,'')+' '+t.nome;
+ $('versoBox').hidden=!t.pair||!!item;
+ $('add').textContent=item?'Salvar alterações':'Adicionar à folha';
+ $('cancel').hidden=!item;
+ const ph=t.fields.some(f=>f.t==='photo');
+ $('dica').textContent=t.fields.length?(ph?'Depois de escolher a foto, arraste-a na prévia para ajustar e use o zoom abaixo.':'Altere os campos abaixo; a prévia muda na hora.'):'Esta arte é pronta, sem nada para alterar. É só escolher a quantidade.';
+ renderForm();renderStage();renderThumbs();
+ if(innerWidth<820)$('personalizar').scrollIntoView({behavior:'smooth'});
+}
+/* ---------- 2. personalise ---------- */
+let stageScale=1;
+function renderStage(){
+ if(!cur)return;const t=byId[cur.tid];const box=$('stage');
+ const maxW=box.clientWidth-28,maxH=Math.min(innerHeight*.5,520);
+ stageScale=Math.min(maxW/t.w,maxH/t.h);
+ box.innerHTML=design(t,cur.v,stageScale);
+}
+function renderForm(){
+ const t=byId[cur.tid],v=cur.v;
+ $('form').innerHTML=t.fields.map(f=>{
+  if(f.t==='photo'&&f.k==='foto'&&t.id==='CanecaE'&&v.comFoto!=='Com foto')return '';
+  if(f.t==='text')return `<div class="f"><label for="f_${f.k}">${esc(f.l)}</label><input type="text" id="f_${f.k}" data-k="${f.k}" value="${esc(v[f.k])}" maxlength="40" autocomplete="off"></div>`;
+  if(f.t==='select')return `<div class="f"><label>${esc(f.l)}</label><div class="seg">${f.o.map(o=>`<button type="button" data-k="${f.k}" data-o="${esc(o)}" aria-pressed="${v[f.k]===o}">${esc(o)}</button>`).join('')}</div></div>`;
+  if(f.t==='color')return `<div class="f"><label>${esc(f.l)}</label><div class="sw">${f.o.map(o=>`<button type="button" data-k="${f.k}" data-o="${o}" aria-label="Cor ${o}" aria-pressed="${v[f.k]===o}" style="background:${o}"></button>`).join('')}</div></div>`;
+  const p=v[f.k];
+  return `<div class="f"><label>${esc(f.l)}</label><div class="ph">
+   <label class="btn">${p?'Trocar foto':'Escolher foto'}<input type="file" accept="image/*" data-k="${f.k}" hidden></label>
+   ${p?`<span>Zoom</span><input type="range" min="1" max="3" step="0.02" value="${p.z}" data-z="${f.k}" aria-label="Zoom da ${esc(f.l)}"><button type="button" data-c="${f.k}">Centralizar</button><button type="button" data-r="${f.k}">Tirar</button>`:'<span class="no">Sem foto ainda</span>'}
+  </div></div>`;
+ }).join('');
+}
+function setVal(k,val){cur.v[k]=val;confirmNoPhoto=false;$('warn').hidden=true;renderStage()}
+$('form').addEventListener('input',e=>{
+ const el=e.target;
+ if(el.dataset.k&&el.type==='text')setVal(el.dataset.k,el.value);
+ if(el.dataset.z){cur.v[el.dataset.z].z=+el.value;updateImg(el.dataset.z)}
+});
+$('form').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.o!=null){setVal(b.dataset.k,b.dataset.o);renderForm()}
+ if(b.dataset.c){Object.assign(cur.v[b.dataset.c],{z:1,dx:0,dy:0});renderStage();renderForm()}
+ if(b.dataset.r){cur.v[b.dataset.r]=null;renderStage();renderForm()}
+});
+$('form').addEventListener('change',async e=>{
+ const el=e.target;if(el.type!=='file'||!el.files[0])return;
+ const k=el.dataset.k;$('dica').textContent='Carregando a foto…';
+ try{cur.v[k]=await loadPhoto(el.files[0]);$('dica').textContent='Arraste a foto na prévia para ajustar e use o zoom.'}
+ catch(err){$('dica').textContent='Não consegui abrir essa foto. Tente outra (JPG ou PNG).'}
+ confirmNoPhoto=false;$('warn').hidden=true;renderForm();renderStage();
+});
+function loadPhoto(file){return new Promise((res,rej)=>{
+ const url=URL.createObjectURL(file),im=new Image();
+ im.onload=()=>{const M=2400,k=Math.min(1,M/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res({src:c.toDataURL('image/jpeg',.9),iw:c.width,ih:c.height,z:1,dx:0,dy:0})};
+ im.onerror=()=>{URL.revokeObjectURL(url);rej()};im.src=url})}
+function updateImg(k){const s=$('stage').querySelector(`.slot[data-slot="${k}"]`);if(!s)return;const img=s.querySelector('img');if(img)img.setAttribute('style','position:absolute;max-width:none;'+imgBox(cur.v[k],+s.dataset.w,+s.dataset.h))}
+/* drag + wheel on photos */
+let drag=null;
+$('stage').addEventListener('pointerdown',e=>{const s=e.target.closest('.slot');if(!s||!cur.v[s.dataset.slot])return;e.preventDefault();drag={k:s.dataset.slot,x:e.clientX,y:e.clientY,r:s.getBoundingClientRect()};s.setPointerCapture(e.pointerId);s.style.cursor='grabbing'});
+$('stage').addEventListener('pointermove',e=>{if(!drag)return;const p=cur.v[drag.k];p.dx+=(e.clientX-drag.x)/drag.r.width;p.dy+=(e.clientY-drag.y)/drag.r.height;drag.x=e.clientX;drag.y=e.clientY;updateImg(drag.k)});
+const endDrag=()=>{if(drag){drag=null;renderForm()}};
+$('stage').addEventListener('pointerup',endDrag);$('stage').addEventListener('pointercancel',endDrag);
+$('stage').addEventListener('wheel',e=>{const s=e.target.closest('.slot');if(!s||!cur.v[s.dataset.slot])return;e.preventDefault();const p=cur.v[s.dataset.slot];p.z=Math.min(3,Math.max(1,p.z*(e.deltaY<0?1.05:.95)));updateImg(s.dataset.slot);const r=$('form').querySelector(`[data-z="${s.dataset.slot}"]`);if(r)r.value=p.z},{passive:false});
+
+/* add / save */
+function missingPhotos(){const t=byId[cur.tid];return t.fields.filter(f=>f.t==='photo'&&!cur.v[f.k]&&!(t.id==='CanecaE'&&cur.v.comFoto!=='Com foto')).map(f=>f.l)}
+$('add').onclick=()=>{
+ const t=byId[cur.tid],qty=Math.max(1,Math.min(99,parseInt($('qty').value)||1));
+ const miss=missingPhotos();
+ if(miss.length&&!confirmNoPhoto){confirmNoPhoto=true;$('warn').hidden=false;$('warn').textContent=`Falta: ${miss.join(', ')}. O quadro sairá escrito "FOTO" na impressão. Clique de novo em "${$('add').textContent}" para continuar mesmo assim.`;return}
+ if(cur.edit){const it=S.items.find(i=>i.uid===cur.edit);if(it){it.v=clone(cur.v);it.qty=qty}}
+ else{S.items.push({uid:'i'+Date.now()+Math.random().toString(36).slice(2,6),tid:cur.tid,v:clone(cur.v),qty});
+  if(t.pair&&$('verso').checked)S.items.push({uid:'i'+Date.now()+'v',tid:t.pair,v:{},qty});}
+ const was=!!cur.edit;pick(cur.tid);save();renderSheets();
+ $('dica').textContent=was?'Alterações salvas na folha.':'Adicionado à folha! Você pode fazer o próximo.';
+};
+$('cancel').onclick=()=>pick(cur.tid);
+
+/* ---------- 3. sheets ---------- */
+function pack(){
+ const W=210-2*MARG,H=297-2*MARG,inst=[];
+ S.items.forEach(it=>{const t=byId[it.tid];if(!t)return;for(let i=0;i<it.qty;i++)inst.push({it,t,w:t.w*MM,h:t.h*MM})});
+ inst.sort((a,b)=>b.h-a.h||b.w-a.w);
+ const sheets=[];
+ for(const o of inst){let ok=false;
+  for(const sh of sheets){
+   for(const r of sh.rows)if(o.h<=r.h+.01&&r.x+o.w<=W+.01){o.x=r.x;o.y=r.y;r.x+=o.w+GAP;sh.items.push(o);ok=true;break}
+   if(ok)break;
+   const last=sh.rows[sh.rows.length-1],ny=last.y+last.h+GAP;
+   if(ny+o.h<=H+.01){sh.rows.push({y:ny,h:o.h,x:o.w+GAP});o.x=0;o.y=ny;sh.items.push(o);ok=true;break}
+  }
+  if(!ok){o.x=0;o.y=0;sheets.push({rows:[{y:0,h:o.h,x:o.w+GAP}],items:[o]})}
+ }
+ return sheets;
+}
+function sheetHTML(sh,i){
+ return `<div class="sheet">${sh.items.map(o=>`<div class="pi" style="left:${(MARG+o.x).toFixed(2)}mm;top:${(MARG+o.y).toFixed(2)}mm;width:${o.w.toFixed(2)}mm;height:${o.h.toFixed(2)}mm${S.mirror?';transform:scaleX(-1)':''}"><div style="width:${o.t.w}px;height:${o.t.h}px;transform:scale(${SC});transform-origin:0 0">${o.t.html(o.it.v)}</div></div>`).join('')}${i===0&&S.ruler?'<div class="ruler">régua de teste: esta linha deve medir 5 cm</div>':''}</div>`
+}
+function renderList(){
+ if(!S.items.length){$('list').innerHTML='<div class="empty">Nada na folha ainda. Escolha uma arte, personalize e clique em <b>Adicionar à folha</b>.</div>';return}
+ $('list').innerHTML=S.items.map(it=>{const t=byId[it.tid];if(!t)return'';const s=Math.min(64/t.w,56/t.h);
+  const txt=['nome','nomes','sobrenome'].map(k=>it.v[k]).filter(Boolean)[0]||'';
+  return `<div class="it">${design(t,it.v,s)}<div><b>${esc(t.prod.replace(/s$/,''))} ${esc(t.nome)}</b><small>${esc(txt)}</small></div><div class="ctl"><button data-m="${it.uid}" aria-label="Menos um">−</button><span>${it.qty}</span><button data-p="${it.uid}" aria-label="Mais um">+</button>${t.fields.length?`<button data-e="${it.uid}">Editar</button>`:''}<button data-x="${it.uid}" aria-label="Remover">✕</button></div></div>`}).join('');
+}
+function renderSheets(){
+ renderList();
+ const sheets=pack(),box=$('pages');
+ if(!sheets.length){box.innerHTML='';return}
+ const w=Math.min(box.clientWidth||360,520),k=w/(210*96/25.4);
+ box.innerHTML=sheets.map((sh,i)=>`<div><div class="pgl">Folha ${i+1} de ${sheets.length}</div><div class="pg" style="width:${w}px;height:${(w*297/210).toFixed(1)}px"><div style="transform:scale(${k});transform-origin:0 0;position:absolute">${sheetHTML(sh,i)}</div></div></div>`).join('');
+}
+$('list').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;const f=id=>S.items.find(i=>i.uid===id);
+ if(b.dataset.p){f(b.dataset.p).qty=Math.min(99,f(b.dataset.p).qty+1)}
+ if(b.dataset.m){const it=f(b.dataset.m);it.qty=Math.max(1,it.qty-1)}
+ if(b.dataset.x){S.items=S.items.filter(i=>i.uid!==b.dataset.x)}
+ if(b.dataset.e){const it=f(b.dataset.e);prod=byId[it.tid].prod;renderTabs();pick(it.tid,it);return}
+ save();renderSheets();
+});
+$('mirror').onchange=e=>{S.mirror=e.target.checked;save();renderSheets()};
+$('ruler').onchange=e=>{S.ruler=e.target.checked;save();renderSheets()};
+const FONTS=document.querySelector('link[href*="fonts.googleapis"]').outerHTML;
+function printDoc(){
+ const sheets=pack();
+ return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Folhas para imprimir</title>${FONTS}<style>@page{size:A4;margin:0}body{margin:0;background:#ddd;font-family:Outfit,sans-serif}.tip{max-width:210mm;margin:12px auto;background:#fff;padding:12px 16px;border-radius:8px;font-size:15px}.sheet{width:210mm;height:297mm;position:relative;overflow:hidden;background:#fff;margin:0 auto 12px}.pi{position:absolute;overflow:hidden}.ruler{position:absolute;left:5mm;top:292mm;width:50mm;border-top:.3mm solid #000;font:7pt Outfit,sans-serif;padding-top:.5mm}@media print{body{background:#fff}.tip{display:none}.sheet{margin:0;break-after:page}}</style></head><body><div class="tip"><b>Para sair no tamanho certo:</b> papel A4 · Escala 100% (ou "Tamanho real") · Margens: Nenhuma · desmarque "Ajustar à página". ${sheets.length} folha(s).</div>${sheets.map(sheetHTML).join('')}<script>document.fonts.ready.then(function(){setTimeout(function(){window.print()},700)})<\/script></body></html>`;
+}
+$('dl').onclick=async()=>{
+ if(!S.items.length){$('pmsg').textContent='Adicione pelo menos uma arte antes.';return}
+ const d=window.claude&&await window.claude.use('downloads').catch(()=>null);
+ const html=printDoc();
+ if(d){try{await d.save({filename:'folhas-natal.html',data:new Blob([html],{type:'text/html'})});$('pmsg').textContent='Arquivo baixado. Abra "folhas-natal.html" no navegador: a impressão abre sozinha. Use Escala 100% e Margens: Nenhuma.';return}
+  catch(e){try{await d.save({filename:'folhas-natal.html',data:html});$('pmsg').textContent='Arquivo baixado. Abra "folhas-natal.html" e imprima com Escala 100%.';return}catch(e2){}}}
+ try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));a.download='folhas-natal.html';a.click();$('pmsg').textContent='Se o download não começou, tente "Imprimir agora".'}catch(e){$('pmsg').textContent='Não foi possível baixar aqui. Tente "Imprimir agora".'}
+};
+$('pr').onclick=()=>{
+ if(!S.items.length){$('pmsg').textContent='Adicione pelo menos uma arte antes.';return}
+ $('printArea').innerHTML=pack().map(sheetHTML).join('');
+ try{document.fonts.ready.then(()=>window.print())}catch(e){}
+ $('pmsg').textContent='Se a janela de impressão não abriu, use "Baixar folhas para imprimir".';
+};
+/* ---------- start ---------- */
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;prod=b.dataset.p;renderTabs();renderThumbs()});
+$('thumbs').addEventListener('click',e=>{const b=e.target.closest('.th');if(b)pick(b.dataset.t)});
+let lw1=0,lw2=0;const ro=new ResizeObserver(()=>{const a=$('stage').clientWidth,b=$('pages').clientWidth;if(a!==lw1){lw1=a;renderStage()}if(b!==lw2){lw2=b;renderSheets()}});
+(async()=>{
+ renderTabs();pick('CanecaA');
+ await store.open();const st=await store.get();
+ if(st&&Array.isArray(st.items)){S.items=st.items.filter(i=>byId[i.tid]);S.mirror=st.mirror!==false;S.ruler=st.ruler!==false}
+ $('mirror').checked=S.mirror;$('ruler').checked=S.ruler;
+ renderSheets();ro.observe($('stage'));ro.observe($('pages'));
+})();
+}
+</script>
+</body>
+</html>
